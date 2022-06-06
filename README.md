@@ -45,10 +45,8 @@ Router.map(function() {
 import Controller from '@ember/controller';
 import { action } from "@ember/object";
 import { inject as service } from '@ember/service';
-
 export default class LoginController extends Controller {
   @service session;
-
   @action authenticate(event) {
     const { target } = event;
     let identification = target.querySelector('#identification').value;
@@ -77,7 +75,6 @@ Setup the pouch authenticator
 ```js
 // app/authenticators/pouchjs
 import Pouch from 'ember-simple-auth-pouch/authenticators/pouch';
-
 export default class PouchAuthenticator extends Pouch {
   getDb() {
     let pouchAdapter = this.store.adapterFor('application');//getOwner(this).lookup(`adapter:${pouchAdapterName}`);
@@ -92,7 +89,6 @@ Authenticated routes
 // app/routes/secret.js
 import Route from '@ember/routing/route';
 import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-route-mixin';
-
 export default class SecretRoute extends Route.extend(AuthenticatedRouteMixin) {
   // do your secret model setup here
 }
@@ -111,24 +107,17 @@ import { inject as service } from '@ember/service';
 import { Adapter } from 'ember-pouch';
 import PouchDB from 'ember-pouch/pouchdb';
 import auth from 'pouchdb-authentication';
-
 PouchDB.plugin(auth);
-
 export default class ApplicationAdapter extends Adapter {
   @service session;
   @service cloudState;
   @service refreshIndicator;
-
   constructor() {
     super(...arguments);
-
     const localDb = config.local_couch || 'blogger';
-
     assert('local_couch must be set', !isEmpty(localDb));
-
     const db = new PouchDB(localDb);
     this.db = db;
-
     // If we have specified a remote CouchDB instance, then replicate our local database to it
     if ( config.remote_couch ) {
       const remoteDb = new PouchDB(config.remote_couch, {
@@ -137,21 +126,17 @@ export default class ApplicationAdapter extends Adapter {
           return PouchDB.fetch(url, opts);
         }
       });
-
       const replicationOptions = {
         live: true,
         retry: true
       };
-
       db.replicate.from(remoteDb, replicationOptions).on('paused', (err) => {
         this.cloudState.setPull(!err);
       });
-
       db.replicate.to(remoteDb, replicationOptions).on('denied', (err) => {
         if (!err.id.startsWith('_design/')) {
           //there was an error pushing, probably logged out outside of this app (couch/cloudant dashboard)
           this.session.invalidate();//this cancels the replication
-
           throw({message: "Replication failed. Check login?"});//prevent doc from being marked replicated
         }
       }).on('paused',(err) => {
@@ -159,16 +144,12 @@ export default class ApplicationAdapter extends Adapter {
       }).on('error',() => {
         this.session.invalidate();//mark error by loggin out
       });
-
       this.remoteDb = remoteDb;
     }
-
     return this;
   },
-
   unloadedDocumentChanged: function(obj) {
     this.refreshIndicator.kickSpin();
-
     let store = this.store;
     let recordTypeName = this.getRecordTypeName(store.modelFor(obj.type));
     this.db.rel.find(recordTypeName, obj.id).then(function(doc) {
@@ -187,12 +168,16 @@ Tom Dale's blog example using Ember CLI and ember-simple-auth-pouch: [broerse/em
 And of course thanks to all our wonderful contributors, [here](https://github.com/martinic/ember-simple-auth-pouch/graphs/contributors)! and especially [@mattmarcum](https://github.com/mattmarcum) for creating this addon.
 
 ## Changelog
-* **0.2.0** - Switch to import 'pouchdb-authentication' in App
-* **0.1.0** - Release v0.1.0
-* **0.1.0-beta.7** - no .db, but use getDb() everywhere
-* **0.1.0-beta.6** - use getDb()
-* **0.1.0-beta.5** - use ember-pouch 5.0.0-beta.2
-* **0.1.0-beta.4** - use response when restoring session
-* **0.1.0-beta.3** - Add peerDependencies
-* **0.1.0-beta.2** - Switch to ember-cli 2.7.0
-* **0.1.0-beta.1** - First Beta release
+
+- **0.3.0-beta.1**
+  - Switch to ember-pouch 8.0.0-beta.1
+  - Updated to support latest Ember 4.x
+- **0.2.0** - Switch to import 'pouchdb-authentication' in App
+- **0.1.0** - Release v0.1.0
+- **0.1.0-beta.7** - no .db, but use getDb() everywhere
+- **0.1.0-beta.6** - use getDb()
+- **0.1.0-beta.5** - use ember-pouch 5.0.0-beta.2
+- **0.1.0-beta.4** - use response when restoring session
+- **0.1.0-beta.3** - Add peerDependencies
+- **0.1.0-beta.2** - Switch to ember-cli 2.7.0
+- **0.1.0-beta.1** - First Beta release
