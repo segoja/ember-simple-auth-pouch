@@ -1,6 +1,6 @@
 {
   "name": "ember-simple-auth-pouch",
-  "version": "0.3.0-beta.1",
+  "version": "0.3.0-beta.2",
   "description": "Authenticator for Ember Simple Auth using pouchdb-authentication.",
   "keywords": [
     "ember-addon"
@@ -78,7 +78,7 @@
     "edition": "octane"
   },
   "peerDependencies": {
-    "ember-pouch": ">=7.0.0",
+    "ember-pouch": ">=8.0.0-beta.1",
     "ember-simple-auth": ">=4.2.2",
     "pouchdb-authentication": ">=1.1.3"
   },
