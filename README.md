@@ -168,7 +168,8 @@ Tom Dale's blog example using Ember CLI and ember-simple-auth-pouch: [broerse/em
 And of course thanks to all our wonderful contributors, [here](https://github.com/martinic/ember-simple-auth-pouch/graphs/contributors)! and especially [@mattmarcum](https://github.com/mattmarcum) for creating this addon.
 
 ## Changelog
-
+- **0.3.0-beta.2**
+  - Updated peerDependencies to latest ember-pouch.
 - **0.3.0-beta.1**
   - Switch to ember-pouch 8.0.0-beta.1
   - Updated to support latest Ember 4.x
